@@ -1,0 +1,102 @@
+services:
+  init-perms:
+    image: alpine:3.20
+    restart: "no"
+    volumes:
+      - /local-files:/local-files
+    command: sh -c "chmod 777 /local-files && install -d -m 0777 /local-files/img /local-files/music /local-files/terror /local-files/otros /local-files/minis"
+
+  traefik:
+    image: "traefik"
+    restart: always
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+      - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.websecure.transport.respondingTimeouts.readTimeout=300s"
+      - "--entrypoints.websecure.transport.respondingTimeouts.writeTimeout=300s"
+      - "--entrypoints.websecure.transport.respondingTimeouts.idleTimeout=300s"
+      - "--certificatesresolvers.mytlschallenge.acme.tlschallenge=true"
+      - "--certificatesresolvers.mytlschallenge.acme.email=${SSL_EMAIL}"
+      - "--certificatesresolvers.mytlschallenge.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - traefik_data:/letsencrypt
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+  n8n:
+    build: .
+    image: goldenia:latest
+    restart: always
+    depends_on:
+      - init-perms
+    ports:
+      - "127.0.0.1:5678:5678"
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.n8n.rule=Host(`${SUBDOMAIN}.${DOMAIN_NAME}`) && !PathPrefix(`/img`) && !PathPrefix(`/music`) && !PathPrefix(`/terror`) && !PathPrefix(`/otros`) && !PathPrefix(`/minis`)
+      - traefik.http.routers.n8n.priority=10
+      - traefik.http.routers.n8n.tls=true
+      - traefik.http.routers.n8n.entrypoints=web,websecure
+      - traefik.http.routers.n8n.tls.certresolver=mytlschallenge
+      - traefik.http.services.n8n.loadbalancer.server.port=5678
+      - traefik.http.middlewares.n8n-buffering.buffering.maxRequestBodyBytes=2147483648
+      - traefik.http.routers.n8n.middlewares=n8n-buffering@docker
+    environment:
+      - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
+      - N8N_HOST=${SUBDOMAIN}.${DOMAIN_NAME}
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=https
+      - N8N_RUNNERS_ENABLED=true
+      - NODE_ENV=production
+      - WEBHOOK_URL=https://${SUBDOMAIN}.${DOMAIN_NAME}/
+      - GENERIC_TIMEZONE=${GENERIC_TIMEZONE}
+      - N8N_PROXY_HOPS=1
+      - N8N_FILESYSTEM_ALLOWED_DIRECTORIES=/files,/files/img,/files/music,/files/terror,/files/otros,/files/minis
+      - N8N_RESTRICT_FILE_ACCESS_TO=/files
+      - N8N_BLOCK_NODES_EXECUTION=false
+      - N8N_EXECUTIONS_ALLOW_EXECUTE_COMMAND=true
+      - N8N_LOCAL_FILE_TRIGGER_ALLOW=true
+      - N8N_AUTH_EXCLUDE_ENDPOINTS=oauth2/callback
+      - NODES_EXCLUDE=[]
+      - N8N_PAYLOAD_SIZE_MAX=2048
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - /local-files:/files
+      - /local-files/img:/files/img
+      - /local-files/music:/files/music
+      - /local-files/terror:/files/terror
+      - /local-files/otros:/files/otros
+      - /local-files/minis:/files/minis
+
+  static:
+    image: nginx:alpine
+    restart: always
+    depends_on:
+      - init-perms
+    volumes:
+      - /local-files/img:/usr/share/nginx/html/img:ro
+      - /local-files/music:/usr/share/nginx/html/music:ro
+      - /local-files/terror:/usr/share/nginx/html/terror:ro
+      - /local-files/otros:/usr/share/nginx/html/otros:ro
+      - /local-files/minis:/usr/share/nginx/html/minis:ro
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.static.rule=Host(`${SUBDOMAIN}.${DOMAIN_NAME}`) && (PathPrefix(`/img`) || PathPrefix(`/music`) || PathPrefix(`/terror`) || PathPrefix(`/otros`) || PathPrefix(`/minis`))
+      - traefik.http.routers.static.entrypoints=web,websecure
+      - traefik.http.routers.static.tls=true
+      - traefik.http.routers.static.tls.certresolver=mytlschallenge
+      - traefik.http.routers.static.priority=200
+      - traefik.http.services.static.loadbalancer.server.port=80
+
+volumes:
+  traefik_data:
+    external: true
+  n8n_data:
+    external: true
