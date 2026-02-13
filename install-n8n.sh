@@ -1,7 +1,7 @@
 #!/bin/bash
 ###############################################################################
 # ⚡ GOLDENIAN8N - Instalador de n8n con FFmpeg ⚡
-# Created by: GOLDENIA
+# Created by: GOLDEN
 # Repositorio: https://github.com/goldenchickenchannels/goldenian8n
 ###############################################################################
 
@@ -220,13 +220,16 @@ echo -e "${WHITE}${BOLD}                    INFORMACIÓN DEL SISTEMA${NC}"
 echo -e "${CYAN}${BOLD}═══════════════════════════════════════════════════════════════${NC}"
 echo ""
 echo -e "${BLUE}${BOLD}  📍 Ubicación:${NC}      $INSTALL_DIR"
-echo -e "${GREEN}${BOLD}  🌐 URL de acceso:${NC}  ${WHITE}http://localhost:5678${NC}"
+echo -e "${GREEN}${BOLD}  🌐 URL de acceso:${NC}  ${WHITE}$N8N_URL${NC}"
 echo ""
 echo -e "${CYAN}${BOLD}═══════════════════════════════════════════════════════════════${NC}"
 echo ""
-echo -e "${GREEN}${BOLD}  Ahora vuelve a tu panel de Hostinger, dale al botón${NC}"
-echo -e "${GREEN}${BOLD}  administrar aplicación, crea tus credenciales para n8n${NC}"
-echo -e "${GREEN}${BOLD}  y entra a importar o crear tus flujos. 🎬${NC}"
+echo -e "${GREEN}${BOLD}🚀 ¡Instalación completada con éxito!${NC}"
+echo -e "--------------------------------------------------------"
+echo -e "${GREEN}${BOLD} 1.${NC} Copia la ${BOLD}URL de acceso${NC} que aparece arriba."
+echo -e "${GREEN}${BOLD} 2.${NC} O ve a tu panel de ${BOLD}Hostinger${NC} > 'Administrar aplicación'."
+echo -e "${GREEN}${BOLD} 3.${NC} Crea tus credenciales, accede e importa tus flujos. 🎬"
+echo -e "--------------------------------------------------------"
 echo ""
 echo -e "${PURPLE}${BOLD}              Creado con ❤️  por GOLDENIA${NC}"
 echo ""
