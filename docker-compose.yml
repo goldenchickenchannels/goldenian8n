@@ -4,7 +4,7 @@ services:
     restart: "no"
     volumes:
       - /local-files:/local-files
-    command: sh -c "chmod 777 /local-files && install -d -m 0777 /local-files/img /local-files/music /local-files/terror /local-files/otros /local-files/minis"
+    command: sh -c "chmod 777 /local-files && install -d -m 0777 /local-files/img /local-files/music /local-files/terror /local-files/otros /local-files/minis /local-files/videos"
 
   traefik:
     image: "traefik"
@@ -40,7 +40,7 @@ services:
       - "127.0.0.1:5678:5678"
     labels:
       - traefik.enable=true
-      - traefik.http.routers.n8n.rule=Host(`${SUBDOMAIN}.${DOMAIN_NAME}`) && !PathPrefix(`/img`) && !PathPrefix(`/music`) && !PathPrefix(`/terror`) && !PathPrefix(`/otros`) && !PathPrefix(`/minis`)
+      - traefik.http.routers.n8n.rule=Host(`${SUBDOMAIN}.${DOMAIN_NAME}`) && !PathPrefix(`/img`) && !PathPrefix(`/music`) && !PathPrefix(`/terror`) && !PathPrefix(`/otros`) && !PathPrefix(`/minis`) && !PathPrefix(`/videos`)
       - traefik.http.routers.n8n.priority=10
       - traefik.http.routers.n8n.tls=true
       - traefik.http.routers.n8n.entrypoints=web,websecure
@@ -58,7 +58,7 @@ services:
       - WEBHOOK_URL=https://${SUBDOMAIN}.${DOMAIN_NAME}/
       - GENERIC_TIMEZONE=${GENERIC_TIMEZONE}
       - N8N_PROXY_HOPS=1
-      - N8N_FILESYSTEM_ALLOWED_DIRECTORIES=/files,/files/img,/files/music,/files/terror,/files/otros,/files/minis
+      - N8N_FILESYSTEM_ALLOWED_DIRECTORIES=/files,/files/img,/files/music,/files/terror,/files/otros,/files/minis,/files/videos
       - N8N_RESTRICT_FILE_ACCESS_TO=/files
       - N8N_BLOCK_NODES_EXECUTION=false
       - N8N_EXECUTIONS_ALLOW_EXECUTE_COMMAND=true
@@ -74,6 +74,7 @@ services:
       - /local-files/terror:/files/terror
       - /local-files/otros:/files/otros
       - /local-files/minis:/files/minis
+      - /local-files/videos:/files/videos
 
   static:
     image: nginx:alpine
@@ -86,9 +87,10 @@ services:
       - /local-files/terror:/usr/share/nginx/html/terror:ro
       - /local-files/otros:/usr/share/nginx/html/otros:ro
       - /local-files/minis:/usr/share/nginx/html/minis:ro
+      - /local-files/videos:/usr/share/nginx/html/videos:ro
     labels:
       - traefik.enable=true
-      - traefik.http.routers.static.rule=Host(`${SUBDOMAIN}.${DOMAIN_NAME}`) && (PathPrefix(`/img`) || PathPrefix(`/music`) || PathPrefix(`/terror`) || PathPrefix(`/otros`) || PathPrefix(`/minis`))
+      - traefik.http.routers.static.rule=Host(`${SUBDOMAIN}.${DOMAIN_NAME}`) && (PathPrefix(`/img`) || PathPrefix(`/music`) || PathPrefix(`/terror`) || PathPrefix(`/otros`) || PathPrefix(`/minis`) || PathPrefix(`/videos`))
       - traefik.http.routers.static.entrypoints=web,websecure
       - traefik.http.routers.static.tls=true
       - traefik.http.routers.static.tls.certresolver=mytlschallenge
