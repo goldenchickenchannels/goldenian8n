@@ -202,7 +202,7 @@ sleep 1
 if [ -f "$INSTALL_DIR/.env" ]; then
     source "$INSTALL_DIR/.env"
     if [ -n "$DOMAIN_NAME" ]; then
-        N8N_URL="https://${DOMAIN_NAME}"
+        N8N_URL="https://n8n.${DOMAIN_NAME}"
     else
         N8N_URL="http://localhost:5678"
     fi
@@ -235,14 +235,14 @@ echo -e "${CYAN}${BOLD}═══════════════════
 echo -e "${WHITE}${BOLD}                    INFORMACIÓN DEL SISTEMA${NC}"
 echo -e "${CYAN}${BOLD}═══════════════════════════════════════════════════════════════${NC}"
 echo ""
-echo -e "${BLUE}${BOLD}  📍 Ubicación:${NC}      $INSTALL_DIR"
-echo -e "${GREEN}${BOLD}  🌐 URL de acceso:${NC}  ${WHITE}$N8N_URL${NC}"
+echo -e "${BLUE}${BOLD}  🌐 URL de acceso:${NC}  ${WHITE}$N8N_URL${NC}"
 echo ""
 echo -e "${CYAN}${BOLD}═══════════════════════════════════════════════════════════════${NC}"
 echo ""
-echo -e "${GREEN}${BOLD}  Ahora vuelve a tu panel de Hostinger, dale al botón${NC}"
-echo -e "${GREEN}${BOLD}  administrar aplicación, crea tus credenciales para n8n${NC}"
-echo -e "${GREEN}${BOLD}  y entra a importar o crear tus flujos. 🎬${NC}"
+echo -e "${GREEN}${BOLD}  Ahora puedes entrar a tu n8n, crear tus credenciales${NC}"
+echo -e "${GREEN}${BOLD}  y empezar a crear y/o importar flujos desde la URL${NC}"
+echo -e "${GREEN}${BOLD}  de acceso de arriba 👆, o si lo prefieres, desde el${NC}"
+echo -e "${GREEN}${BOLD}  panel de Hostinger en el botón 'administrar aplicación'. 🎬${NC}"
 echo ""
 echo -e "${PURPLE}${BOLD}              Creado con ❤️  por GOLDENIA${NC}"
 echo ""
